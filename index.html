@@ -426,7 +426,7 @@
             }
             
             // Display current representation type
-            text("Huidige representatie: " + represType, 425, 600);
+            text("Huidige representatie: " + represType, 425, 550);
             
             // Display explanation
             let explanation = "Dit is een simulator voor de 2x2-kwantumschuifpuzzel. De knoppen SU, SD, SL, SR zijn respectievelijk een gewone wissel (Swap) ";
@@ -435,7 +435,7 @@
             explanation += " tussen twee weergaven. In de 'prob'-weergave is de kans weergegeven dat de puzzel zich in een bepaalde toestand bevindt.";
             explanation += " \n In de 'math'-weergave wordt getoond hoe de wiskunde achter de golffunctie eruitziet.";
             explanation += "\n Vooraleer de 'math'-weergave te gebruiken wordt aangeraden de originele paper te lezen.";
-            text(explanation, 200, 50, 400, 550);
+            text(explanation, 250, 50, 400, 550); //parameter 1: x-positie, parameter 3: x-lengte (2 en 4 analoog vermoed ik)
         }
 
         // Manually initialize p5.js
