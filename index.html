@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kwantumpuzzelsimulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .description {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #f0f8ff;
+            border-radius: 4px;
+        }
+    </style>
+    <!-- Load p5.js from CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Kwantumpuzzelsimulator</h1>
+        <div class="description">
+            <p>Deze simulator demonstreert een 2x2-kwantumschuifpuzzel met zowel klassieke als kwantumoperaties.</p>
+            <p>Gebruik de knoppen om de kwantumtoestand van de puzzel te manipuleren.</p>
+            <p>De verscheidene oplosmethodes gedefinieerd in de paper van Lordi et al. zijn nog niet geïmplementeerd.</p>
+        </div>
+        <!-- The canvas will be created by p5.js inside this div -->
+        <div id="canvas-container"></div>
+    </div>
+
+    <script>
+        // Quantum Rubik's Cube Simulator in p5.js
+        // Based on the original Python implementation
+
+        let currentState;
+        let represType = 'prob'; // 'prob' or 'math'
+
+        // Vector representations
+        const v0repr = "\n🟩🟩\n🟦🟦";
+        const v1repr = "\n🟦🟦\n🟩🟩";
+        const v2repr = "\n🟦🟩\n🟦🟩";
+        const v3repr = "\n🟩🟦\n🟩🟦";
+        const v4repr = "\n🟦🟩\n🟩🟦";
+        const v5repr = "\n🟩🟦\n🟦🟩";
+
+        // Complex number operations
+        class Complex {
+          constructor(real, imag = 0) {
+            this.real = real;
+            this.imag = imag;
+          }
+
+          static multiply(a, b) {
+            return new Complex(
+              a.real * b.real - a.imag * b.imag,
+              a.real * b.imag + a.imag * b.real
+            );
+          }
+
+          static add(a, b) {
+            return new Complex(
+              a.real + b.real,
+              a.imag + b.imag
+            );
+          }
+
+          multiply(scalar) {
+            if (scalar instanceof Complex) {
+              return Complex.multiply(this, scalar);
+            } else {
+              return new Complex(this.real * scalar, this.imag * scalar);
+            }
+          }
+
+          toString() {
+            if (Math.abs(this.imag) < 1e-10) {
+              return this.real.toFixed(4).replace(/\.?0+$/, '');
+            } else if (Math.abs(this.real) < 1e-10) {
+              return this.imag.toFixed(4).replace(/\.?0+$/, '') + 'i';
+            } else {
+              const sign = this.imag >= 0 ? '+' : '';
+              return this.real.toFixed(4).replace(/\.?0+$/, '') + sign + this.imag.toFixed(4).replace(/\.?0+$/, '') + 'i';
+            }
+          }
+
+          abs() {
+            return Math.sqrt(this.real * this.real + this.imag * this.imag);
+          }
+        }
+
+        // Define the i constant
+        const I = new Complex(0, 1);
+
+        // Vector class for quantum states
+        class Vector {
+          constructor(represent, coeff = new Complex(1), otherVecToSum = null) {
+            if (otherVecToSum === null) {
+              this._repres = [represent];
+              this._coefficients = [coeff];
+            } else {
+              if (otherVecToSum.getRepr().includes(represent)) {
+                const indx = otherVecToSum.getRepr().indexOf(represent);
+                this._repres = [...otherVecToSum.getRepr()];
+                this._coefficients = [...otherVecToSum.getCoeff()];
+                this._coefficients[indx] = Complex.add(this._coefficients[indx], coeff);
+              } else {
+                this._repres = [...otherVecToSum.getRepr()];
+                this._coefficients = [...otherVecToSum.getCoeff()];
+                this._repres.push(represent);
+                this._coefficients.push(coeff);
+              }
+            }
+            
+            // Remove all zero coefficients
+            for (let i = this._coefficients.length - 1; i >= 0; i--) {
+              if (Math.abs(this._coefficients[i].real) < 1e-10 && Math.abs(this._coefficients[i].imag) < 1e-10) {
+                this._coefficients.splice(i, 1);
+                this._repres.splice(i, 1);
+              }
+            }
+          }
+
+          multiply(constant) {
+            if (this._repres.length === 0) return new Vector(v0repr, new Complex(0));
+            
+            let newVec = new Vector(
+              this._repres[0], 
+              this._coefficients[0] instanceof Complex 
+                ? this._coefficients[0].multiply(constant) 
+                : new Complex(this._coefficients[0] * constant)
+            );
+            
+            for (let i = 1; i < this._repres.length; i++) {
+              const newCoeff = this._coefficients[i] instanceof Complex 
+                ? this._coefficients[i].multiply(constant) 
+                : new Complex(this._coefficients[i] * constant);
+              
+              newVec = new Vector(this._repres[i], newCoeff, newVec);
+            }
+            
+            return newVec;
+          }
+
+          toString() {
+            if (this._repres.length === 0) return "0";
+            
+            if (represType === 'math') {
+              let result = "";
+              for (let i = 0; i < this._repres.length; i++) {
+                result += this._coefficients[i].toString() + " " + this._repres[i];
+                if (i < this._repres.length - 1) {
+                  result += "\n+\n";
+                }
+              }
+              return result;
+            } else {
+              // Probability representation
+              const probabilities = this.getProbs();
+              let result = "";
+              for (let i = 0; i < this._repres.length; i++) {
+                result += (probabilities[i] * 100).toFixed(1) + "% " + this._repres[i];
+                if (i < this._repres.length - 1) {
+                  result += "\n+\n";
+                }
+              }
+              return result;
+            }
+          }
+
+          copy() {
+            const representants = this.getRepr();
+            const coefficients = this.getCoeff();
+            if (representants.length === 0) return new Vector(v0repr, new Complex(0));
+            
+            let copy = new Vector(representants[0], coefficients[0]);
+            for (let i = 1; i < representants.length; i++) {
+              copy = new Vector(representants[i], coefficients[i], copy);
+            }
+            return copy;
+          }
+
+          add(other) {
+            const otherRepr = other.getRepr();
+            const otherCoeff = other.getCoeff();
+            
+            // Handle edge cases
+            if (otherRepr.length === 0) return this.copy();
+            if (this._repres.length === 0) return other.copy();
+            
+            let newVec = this.copy();
+            for (let i = 0; i < otherRepr.length; i++) {
+              newVec = new Vector(otherRepr[i], otherCoeff[i], newVec);
+            }
+            return newVec;
+          }
+          
+          getProbs() {
+            const probabilities = [];
+            for (const coef of this._coefficients) {
+              probabilities.push(coef.abs() * coef.abs());
+            }
+            return probabilities;
+          }
+          
+          getRepr() {
+            return this._repres;
+          }
+          
+          getCoeff() {
+            return this._coefficients;
+          }
+          
+          equals(other) {
+            const diff = this.add(other.multiply(new Complex(-1)));
+            return diff.getCoeff().length === 0 || diff.getCoeff().every(c => Math.abs(c.real) < 1e-10 && Math.abs(c.imag) < 1e-10);
+          }
+        }
+
+        // Operator class for quantum operations
+        class Operator {
+          constructor(operations) {
+            this._berekening = {};
+            for (const operation of operations) {
+              this._berekening[operation[0].getRepr()[0]] = operation[1];
+            }
+          }
+
+          apply(vect) {
+            const vectRepr = vect.getRepr();
+            const vectCoeff = vect.getCoeff();
+            
+            if (vectRepr.length === 0) return new Vector(v0repr, new Complex(0));
+            
+            // Apply the operator to the first term
+            let newVect = this._berekening[vectRepr[0]].multiply(vectCoeff[0]);
+            
+            // Apply to the remaining terms and sum
+            for (let i = 1; i < vectRepr.length; i++) {
+              newVect = newVect.add(this._berekening[vectRepr[i]].multiply(vectCoeff[i]));
+            }
+            
+            return newVect;
+          }
+
+          multiply(constant) {
+            const newOperations = [];
+            for (const key in this._berekening) {
+              newOperations.push([new Vector(key), this._berekening[key].multiply(constant)]);
+            }
+            return new Operator(newOperations);
+          }
+
+          add(other) {
+            const newOperations = [];
+            for (const key in this._berekening) {
+              const sum = this._berekening[key].add(other.apply(new Vector(key)));
+              newOperations.push([new Vector(key), sum]);
+            }
+            return new Operator(newOperations);
+          }
+        }
+
+        // Define basic vectors
+        const v0 = new Vector(v0repr);
+        const v1 = new Vector(v1repr);
+        const v2 = new Vector(v2repr);
+        const v3 = new Vector(v3repr);
+        const v4 = new Vector(v4repr);
+        const v5 = new Vector(v5repr);
+
+        // Define classical operators
+        const Id = new Operator([
+          [v0, v0], [v1, v1], [v2, v2], [v3, v3], [v4, v4], [v5, v5]
+        ]);
+
+        const SU = new Operator([
+          [v0, v0.multiply(new Complex(-1))], 
+          [v1, v1.multiply(new Complex(-1))],
+          [v2, v5], 
+          [v3, v4], 
+          [v4, v3], 
+          [v5, v2]
+        ]);
+
+        const SD = new Operator([
+          [v0, v0.multiply(new Complex(-1))], 
+          [v1, v1.multiply(new Complex(-1))],
+          [v2, v4], 
+          [v3, v5], 
+          [v4, v2], 
+          [v5, v3]
+        ]);
+
+        const SL = new Operator([
+          [v0, v4],
+          [v1, v5], 
+          [v2, v2.multiply(new Complex(-1))], 
+          [v3, v3.multiply(new Complex(-1))], 
+          [v4, v0], 
+          [v5, v1]
+        ]);
+
+        const SR = new Operator([
+          [v0, v5],
+          [v1, v4], 
+          [v2, v2.multiply(new Complex(-1))], 
+          [v3, v3.multiply(new Complex(-1))], 
+          [v4, v1], 
+          [v5, v0]
+        ]);
+
+        // Quantum operators
+        const sqrtSU = Id.add(SU.multiply(I)).multiply(1/Math.sqrt(2));
+        const sqrtSD = Id.add(SD.multiply(I)).multiply(1/Math.sqrt(2));
+        const sqrtSL = Id.add(SL.multiply(I)).multiply(1/Math.sqrt(2));
+        const sqrtSR = Id.add(SR.multiply(I)).multiply(1/Math.sqrt(2));
+
+        // Custom button creation function
+        function createCustomButton(label, x, y, callback) {
+            const button = document.createElement('button');
+            button.innerText = label;
+            button.style.position = 'absolute';
+            button.style.left = x + 'px';
+            button.style.top = y + 'px';
+            button.style.padding = '8px 12px';
+            button.style.margin = '5px';
+            button.style.backgroundColor = '#4CAF50';
+            button.style.color = 'white';
+            button.style.border = 'none';
+            button.style.borderRadius = '4px';
+            button.style.cursor = 'pointer';
+            button.addEventListener('mouseenter', () => {
+                button.style.backgroundColor = '#45a049';
+            });
+            button.addEventListener('mouseleave', () => {
+                button.style.backgroundColor = '#4CAF50';
+            });
+            button.addEventListener('click', callback);
+            document.body.appendChild(button);
+            return button;
+        }
+
+        // p5.js setup and draw functions
+        function setup() {
+            const canvas = createCanvas(800, 600);
+            canvas.parent('canvas-container');
+            textFont('monospace');
+            textSize(16);
+            
+            // Initialize the current state
+            currentState = v0;
+            
+            // Create buttons
+            createCustomButton('SU', 1000, 500, () => {
+                currentState = SU.apply(currentState);
+            });
+            
+            createCustomButton('SD', 1060, 500, () => {
+                currentState = SD.apply(currentState);
+            });
+            
+            createCustomButton('SL', 1000, 550, () => {
+                currentState = SL.apply(currentState);
+            });
+            
+            createCustomButton('SR', 1060, 550, () => {
+                currentState = SR.apply(currentState);
+            });
+            
+            createCustomButton('sqrtSU', 1120, 500, () => {
+                currentState = sqrtSU.apply(currentState);
+            });
+            
+            createCustomButton('sqrtSD', 1190, 500, () => {
+                currentState = sqrtSD.apply(currentState);
+            });
+            
+            createCustomButton('sqrtSL', 1120, 550, () => {
+                currentState = sqrtSL.apply(currentState);
+            });
+            
+            createCustomButton('sqrtSR', 1190, 550, () => {
+                currentState = sqrtSR.apply(currentState);
+            });
+            
+            createCustomButton('Reset Puzzel', 1190, 600, () => {
+                currentState = v0;
+            });
+            
+            createCustomButton('Switch Representatie', 1000, 600, () => {
+                represType = represType === 'math' ? 'prob' : 'math';
+            });
+        }
+
+        function draw() {
+            background(240);
+            
+            // Display current state
+            fill(0);
+            text("Huidige toestand:", 50, 50);
+            
+            // Format state for display
+            const stateLines = currentState.toString().split('\n');
+            for (let i = 0; i < stateLines.length; i++) {
+                text(stateLines[i], 50, 80 + i * 20);
+            }
+            
+            // Display current representation type
+            text("Huidige representatie: " + represType, 425, 425);
+            
+            // Display explanation
+            let explanation = "Dit is een simulator voor de 2x2-kwantumschuifpuzzel. De knoppen SU, SD, SL, SR zijn respectievelijk een gewone wissel (Swap) ";
+            explanation += " van de bovenste (Upper), onderste (Down), linkse (Left) en rechtse (Right) tegels.\n\nDe knoppen sqrtSU, etc. zijn de kwantumwissels.";
+            explanation += " Hierbij is er 50% kans dat de wissel doorgevoerd wordt en 50% kans dat dit niet gebeurt.\n\nDe knop 'Switch representatie' wisselt";
+            explanation += " de weergave tussen de kans dat de puzzel zich in deze staat bevindt (prob) en de wiskundige weergave (math) van de puzzel.";
+            
+            text(explanation, 400, 50, 350, 400);
+        }
+
+        // Manually initialize p5.js
+        new p5();
+    </script>
+</body>
+</html>
