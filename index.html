@@ -336,7 +336,7 @@
         const sqrtSR = Id.add(SR.multiply(I)).multiply(1/Math.sqrt(2));
 
         // Custom button creation function
-        function createCustomButton(label, x, y, callback) {
+        function createCustomButton(label, x, y, kleur, callback) {
             const button = document.createElement('button');
             button.innerText = label;
             button.style.position = 'absolute';
@@ -344,7 +344,7 @@
             button.style.top = y + 'px';
             button.style.padding = '8px 12px';
             button.style.margin = '5px';
-            button.style.backgroundColor = '#4CAF50';
+            button.style.backgroundColor = kleur;
             button.style.color = 'white';
             button.style.border = 'none';
             button.style.borderRadius = '4px';
@@ -371,43 +371,43 @@
             currentState = v0;
             
             // Create buttons
-            createCustomButton('Wissel bovenste tegels', 1000, 300, () => {
+            createCustomButton('Wissel bovenste tegels', 1000, 300,'#4CAF50',  () => {
                 currentState = SU.apply(currentState);
             });
             
-            createCustomButton('Wissel onderste tegels', 1000, 350, () => {
+            createCustomButton('Wissel onderste tegels', 1000, 350,'#4CAF50', () => {
                 currentState = SD.apply(currentState);
             });
             
-            createCustomButton('Wissel linkse tegels', 1000, 400, () => {
+            createCustomButton('Wissel linkse tegels', 1000, 400,'#4CAF50', () => {
                 currentState = SL.apply(currentState);
             });
             
-            createCustomButton('Wissel rechtse tegels', 1000, 450, () => {
+            createCustomButton('Wissel rechtse tegels', 1000, 450,'#4CAF50', () => {
                 currentState = SR.apply(currentState);
             });
             
-            createCustomButton('Kwantumwissel bovenste tegels', 1000, 550, () => {
+            createCustomButton('Kwantumwissel bovenste tegels', 1000, 550,'#cc0b0b', () => {
                 currentState = sqrtSU.apply(currentState);
             });
             
-            createCustomButton('Kwantumwissel onderste tegels', 1000, 600, () => {
+            createCustomButton('Kwantumwissel onderste tegels', 1000, 600,'#cc0b0b', () => {
                 currentState = sqrtSD.apply(currentState);
             });
             
-            createCustomButton('Kwantumwissel linkse tegels', 1000, 650, () => {
+            createCustomButton('Kwantumwissel linkse tegels', 1000, 650,'#cc0b0b', () => {
                 currentState = sqrtSL.apply(currentState);
             });
             
-            createCustomButton('KKwantumwissel rechtse tegels', 1000, 700, () => {
+            createCustomButton('KKwantumwissel rechtse tegels', 1000, 700,'#cc0b0b', () => {
                 currentState = sqrtSR.apply(currentState);
             });
             
-            createCustomButton('Reset Puzzel', 1190, 750, () => {
+            createCustomButton('Reset Puzzel', 1190, 750,'#4CAF50', () => {
                 currentState = v0;
             });
             
-            createCustomButton('Switch Representatie', 1000, 750, () => {
+            createCustomButton('Switch Representatie', 1000, 750,'#4CAF50', () => {
                 represType = represType === 'math' ? 'prob' : 'math';
             });
         }
