@@ -379,14 +379,15 @@
         reset: 'Reset puzzel',
         switchrepr: 'Switch representatie',
         currentrepr: "Huidige representatie: ",
-        verwijs: 'Naar: '
+        verwijs: 'Naar: ',
+        huidig: 'Huidige toestand: '
     },
     en: {
         explanation: "This is a simulator for the 2x2 quantum sliding puzzle. The 4 top (green) buttons swap two adjacent tiles." +
             " \n\nThe 4 (red) buttons below are the quantum swaps." +
-            " Here there is a 50% chance that the swap is executed and 50% chance that it doesn't happen.\n\nThe 'Switch representation' button toggles" +
-            " between two displays. In the 'prob' display, the probability is shown that the puzzle is in a certain state." +
-            " \n In the 'math' display is shown how the mathematics behind the wave function looks.",
+            " These are defined by Lordi et al. as the square root of a classical swap.\n\nThe 'Switch representation' button toggles" +
+            " between two displays. In the 'prob' display, the probability is shown to find the puzzle in a certain state upon measuring." +
+            " \n In the 'math' display the complex representation of the wave function is shown.",
         SU: 'Swap upper tiles',
         SD: 'Swap lower tiles',
         SL: 'Swap left tiles',
@@ -397,8 +398,9 @@
         sqrtSR: 'Quantum swap right tiles',
         reset: 'Reset puzzle',
         switchrepr: 'Switch representation',
-        currentrepr: 'Current representation',
-        verwijs: 'After: '
+        currentrepr: 'Current representation: ',
+        verwijs: 'After: ',
+        huidig: 'Current state: '
         
         
             
@@ -490,7 +492,7 @@ let currentLanguage = 'nl'; // Default language
             
             // Display current state
             fill(0);
-            text("Huidige toestand:", 50, 50);
+            text(getText('huidig'), 50, 50);
             
             // Format state for display
             const stateLines = currentState.toString().split('\n');
