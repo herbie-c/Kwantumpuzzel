@@ -386,7 +386,8 @@
         switchrepr: 'Switch representatie',
         currentrepr: "Huidige representatie: ",
         verwijs: 'Naar: ',
-        huidig: 'Huidige toestand: '
+        huidig: 'Huidige toestand: ',
+        title = 'Kwantumpuzzelsimulator'
     },
     en: {
         explanation: "This is a simulator for the 2x2 quantum sliding puzzle. The 4 top (green) buttons swap two adjacent tiles." +
@@ -406,7 +407,8 @@
         switchrepr: 'Switch representation',
         currentrepr: 'Current representation: ',
         verwijs: 'After: ',
-        huidig: 'Current state: '
+        huidig: 'Current state: ',
+        title = 'Kwantumpuzzelsimulator
     }
 };
 
@@ -428,6 +430,13 @@ let currentLanguage = 'en'; // Default language
         function changeLanguage(langCode) {
             currentLanguage = langCode;
             updateButtonTexts();
+            
+            // Update source link text
+            // Update h1 title
+            const h1Element = document.querySelector('h1');
+            if (h1Element) {
+                h1Element.textContent = getText('title');
+            }
             
             // Update source link text
             const sourceText = document.getElementById('source-text');
@@ -515,7 +524,7 @@ let currentLanguage = 'en'; // Default language
         // Manually initialize p5.js
         new p5();
     </script>
-<div class="description">
+<div class="description", id = 'source-text'>
             <p>After: <a href="https://arxiv.org/pdf/2410.22287">Lordi N, Trank-Greene M, Kyle A, Combes J. Quantum permutation puzzles with indistinguishable particles. arXiv preprint arXiv:2410.22287. 2024 Oct 29</a>.</p>
         </div>
 </body>
