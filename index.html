@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kwantumpuzzelsimulator</title>
+    <title>Quantum puzzle simulator</title>
     
     <style>
         body {
@@ -35,19 +35,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
 </head>
 <body>
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     <select id="language-select" onchange="changeLanguage(this.value)">
         <option value="nl">Nederlands</option>
         <option value="en">English</option>
     </select>
-    <title>Kwantumpuzzelsimulator</title>
     <div class="container">
-        <h1>Kwantumpuzzelsimulator</h1>
+        <h1>Quantum puzzle simulator</h1>
         <!-- The canvas will be created by p5.js inside this div -->
         <div id="canvas-container"></div>
     </div>
@@ -414,21 +407,34 @@
 
 let currentLanguage = 'nl'; // Default language
         // Function to get text in current language
-function getText(key) {
-    return translations[currentLanguage][key] || translations['nl'][key];
-}
+// Function to get text in current language
+    function getText(key) {
+            return translations[currentLanguage][key] || translations['nl'][key];
+        }
 
-// Function to change language
-function changeLanguage(langCode) {
-    currentLanguage = langCode;
-    // Redraw or update your display here
-    redraw(); // or whatever function redraws your canvas
-}
+        // Function to update button texts
+    function updateButtonTexts() {
+            buttons.forEach(button => {
+                button.element.innerText = getText(button.key);
+            });
+        }
+
+        // Function to change language
+    function changeLanguage(langCode) {
+            currentLanguage = langCode;
+            updateButtonTexts();
+            
+            // Update source link text
+            const sourceText = document.getElementById('source-text');
+            const link = sourceText.querySelector('a');
+            const linkText = link.outerHTML;
+            sourceText.innerHTML = getText('verwijs') + linkText;
+            
+            redraw(); // Redraw canvas with new language
+        }
 
 
-
-
-        function setup() {
+    function setup() {
             const canvas = createCanvas(800, 600);
             canvas.parent('canvas-container');
             textFont('monospace');
@@ -504,7 +510,7 @@ function changeLanguage(langCode) {
         new p5();
     </script>
 <div class="description">
-            <p>Naar: <a href="https://arxiv.org/pdf/2410.22287">Lordi N, Trank-Greene M, Kyle A, Combes J. Quantum permutation puzzles with indistinguishable particles. arXiv preprint arXiv:2410.22287. 2024 Oct 29</a>.</p>
+            <p>After: <a href="https://arxiv.org/pdf/2410.22287">Lordi N, Trank-Greene M, Kyle A, Combes J. Quantum permutation puzzles with indistinguishable particles. arXiv preprint arXiv:2410.22287. 2024 Oct 29</a>.</p>
         </div>
 </body>
 </html>
