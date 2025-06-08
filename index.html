@@ -416,35 +416,36 @@
 };
 
 let currentLanguage = 'en'; // Default language
+
         // Function to get text in current language
-// Function to get text in current language
-    function getText(key) {
+        function getText(key) {
             return translations[currentLanguage][key] || translations['en'][key];
         }
 
         // Function to update button texts
-    function updateButtonTexts() {
+        function updateButtonTexts() {
             buttons.forEach(button => {
                 button.element.innerText = getText(button.key);
             });
         }
 
         // Function to change language
-    function changeLanguage(langCode) {
+        function changeLanguage(langCode) {
             currentLanguage = langCode;
             updateButtonTexts();
             
             // Update source link text
             const sourceText = document.getElementById('source-text');
-            const link = sourceText.querySelector('a');
-            const linkText = link.outerHTML;
-            sourceText.innerHTML = getText('verwijs') + linkText;
+            if (sourceText) {
+                const link = sourceText.querySelector('a');
+                const linkText = link.outerHTML;
+                sourceText.innerHTML = getText('verwijs') + linkText;
+            }
             
             redraw(); // Redraw canvas with new language
         }
 
-
-    function setup() {
+        function setup() {
             const canvas = createCanvas(800, 600);
             canvas.parent('canvas-container');
             textFont('monospace');
@@ -453,7 +454,7 @@ let currentLanguage = 'en'; // Default language
             // Initialize the current state
             currentState = v0;
             
-            // Create buttons
+            // Create buttons - now using translation keys instead of translated text
             createCustomButton('SU', 1000, 150,'#4CAF50','#45a049',  () => {
                 currentState = SU.apply(currentState);
             });
@@ -513,7 +514,7 @@ let currentLanguage = 'en'; // Default language
             
             // Display explanation
             let explanation = getText('explanation');
-            text(explanation, 300, 50, 400, 550); //parameter 1: x-positie, parameter 3: x-lengte (2 en 4 analoog vermoed ik)
+            text(explanation, 300, 50, 400, 550);
         }
 
         // Manually initialize p5.js
