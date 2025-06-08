@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kwantumpuzzelsimulator</title>
+    
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -34,6 +35,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
 </head>
 <body>
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <select id="language-select" onchange="changeLanguage(this.value)">
+        <option value="nl">Nederlands</option>
+        <option value="en">English</option>
+    </select>
+    <title>Kwantumpuzzelsimulator</title>
     <div class="container">
         <h1>Kwantumpuzzelsimulator</h1>
         <!-- The canvas will be created by p5.js inside this div -->
@@ -353,6 +365,69 @@
         }
 
         // p5.js setup and draw functions
+
+        // the languages
+        const translations = {
+    nl: {
+        explanation: "Dit is een simulator voor de 2x2-kwantumschuifpuzzel. De 4 bovenste (groene) knoppen wisselen twee aangrenzende tegels." +
+            " \n\nDe 4 (rode) knoppen daaronder zijn de kwantumwissels." +
+            " Hierbij is er 50% kans dat de wissel doorgevoerd wordt en 50% kans dat dit niet gebeurt.\n\nDe knop 'Switch representatie' wisselt" +
+            " tussen twee weergaven. In de 'prob'-weergave is de kans weergegeven dat de puzzel zich in een bepaalde toestand bevindt." +
+            " \n In de 'math'-weergave wordt getoond hoe de wiskunde achter de golffunctie eruitziet." +
+            "\n Vooraleer de 'math'-weergave te gebruiken wordt aangeraden de originele paper te lezen.",
+        SU: 'Wissel bovenste tegels',
+        SD: 'Wissel onderste tegels',
+        SR: 'Wissel rechtse tegels',
+        SL: 'Wissel linkse tegels',
+        sqrtSU: 'Kwantumwissel bovenste tegels',
+        sqrtSD: 'Kwantumwissel onderste tegels',
+        sqrtSL: 'Kwantumwissel linkse tegels',
+        sqrtSR: 'Kwantumwissel rechtse tegels',
+        reset: 'Reset puzzel',
+        switchrepr: 'Switch representatie',
+        currentrepr: "Huidige representatie: ",
+        verwijs: 'Naar: '
+    },
+    en: {
+        explanation: "This is a simulator for the 2x2 quantum sliding puzzle. The 4 top (green) buttons swap two adjacent tiles." +
+            " \n\nThe 4 (red) buttons below are the quantum swaps." +
+            " Here there is a 50% chance that the swap is executed and 50% chance that it doesn't happen.\n\nThe 'Switch representation' button toggles" +
+            " between two displays. In the 'prob' display, the probability is shown that the puzzle is in a certain state." +
+            " \n In the 'math' display is shown how the mathematics behind the wave function looks.",
+        SU: 'Swap upper tiles',
+        SD: 'Swap lower tiles',
+        SL: 'Swap left tiles',
+        SR: 'Swap right tiles',
+        sqrtSU: 'Quantum swap upper tiles',
+        sqrtSD: 'Quantum swap lower tiles',
+        sqrtSL: 'Quantum swap left tiles',
+        sqrtSR: 'Quantum swap right tiles',
+        reset: 'Reset puzzle',
+        switchrepr: 'Switch representation',
+        currentrepr: 'Current representation',
+        verwijs: 'After: '
+        
+        
+            
+    }
+};
+
+let currentLanguage = 'nl'; // Default language
+        // Function to get text in current language
+function getText(key) {
+    return translations[currentLanguage][key] || translations['nl'][key];
+}
+
+// Function to change language
+function changeLanguage(langCode) {
+    currentLanguage = langCode;
+    // Redraw or update your display here
+    redraw(); // or whatever function redraws your canvas
+}
+
+
+
+
         function setup() {
             const canvas = createCanvas(800, 600);
             canvas.parent('canvas-container');
@@ -363,43 +438,43 @@
             currentState = v0;
             
             // Create buttons
-            createCustomButton('Wissel bovenste tegels', 1000, 150,'#4CAF50','#45a049',  () => {
+            createCustomButton(getText("SU"), 1000, 150,'#4CAF50','#45a049',  () => {
                 currentState = SU.apply(currentState);
             });
             
-            createCustomButton('Wissel onderste tegels', 1000, 200,'#4CAF50', '#45a049', () => {
+            createCustomButton(getText('SD'), 1000, 200,'#4CAF50', '#45a049', () => {
                 currentState = SD.apply(currentState);
             });
             
-            createCustomButton('Wissel linkse tegels', 1000, 250,'#4CAF50','#45a049', () => {
+            createCustomButton(getText('SL'), 1000, 250,'#4CAF50','#45a049', () => {
                 currentState = SL.apply(currentState);
             });
             
-            createCustomButton('Wissel rechtse tegels', 1000, 300,'#4CAF50','#45a049', () => {
+            createCustomButton(getText('SR'), 1000, 300,'#4CAF50','#45a049', () => {
                 currentState = SR.apply(currentState);
             });
             
-            createCustomButton('Kwantumwissel bovenste tegels', 1000, 400,'#D31A12','#cc0b0b', () => {
+            createCustomButton(getText('sqrtSU'), 1000, 400,'#D31A12','#cc0b0b', () => {
                 currentState = sqrtSU.apply(currentState);
             });
             
-            createCustomButton('Kwantumwissel onderste tegels', 1000, 450,'#D31A12','#cc0b0b', () => {
+            createCustomButton(getText('sqrtSD'), 1000, 450,'#D31A12','#cc0b0b', () => {
                 currentState = sqrtSD.apply(currentState);
             });
             
-            createCustomButton('Kwantumwissel linkse tegels', 1000, 500,'#D31A12','#cc0b0b', () => {
+            createCustomButton(getText('sqrtSL'), 1000, 500,'#D31A12','#cc0b0b', () => {
                 currentState = sqrtSL.apply(currentState);
             });
             
-            createCustomButton('Kwantumwissel rechtse tegels', 1000, 550,'#D31A12','#cc0b0b', () => {
+            createCustomButton(getText('sqrtSR'), 1000, 550,'#D31A12','#cc0b0b', () => {
                 currentState = sqrtSR.apply(currentState);
             });
             
-            createCustomButton('Reset Puzzel', 1190, 600,'#2980b9','#2271B2', () => {
+            createCustomButton(getText('reset'), 1190, 600,'#2980b9','#2271B2', () => {
                 currentState = v0;
             });
             
-            createCustomButton('Switch Representatie', 1000, 600,'#2980b9','#2271B2', () => {
+            createCustomButton(getText('switchrepr'), 1000, 600,'#2980b9','#2271B2', () => {
                 represType = represType === 'math' ? 'prob' : 'math';
             });
         }
@@ -418,15 +493,10 @@
             }
             
             // Display current representation type
-            text("Huidige representatie: " + represType, 360, 510);
+            text(getText('currentrepr') + represType, 360, 510);
             
             // Display explanation
-            let explanation = "Dit is een simulator voor de 2x2-kwantumschuifpuzzel. De 4 bovenste (groene) knoppen wisselen twee aangrenzende tegels.";
-            explanation += " \n\nDe 4 (rode) knoppen daaronder zijn de kwantumwissels.";
-            explanation += " Hierbij is er 50% kans dat de wissel doorgevoerd wordt en 50% kans dat dit niet gebeurt.\n\nDe knop 'Switch representatie' wisselt";
-            explanation += " tussen twee weergaven. In de 'prob'-weergave is de kans weergegeven dat de puzzel zich in een bepaalde toestand bevindt.";
-            explanation += " \n In de 'math'-weergave wordt getoond hoe de wiskunde achter de golffunctie eruitziet.";
-            explanation += "\n Vooraleer de 'math'-weergave te gebruiken wordt aangeraden de originele paper te lezen.";
+            let explanation = getText('explanation');
             text(explanation, 300, 50, 400, 550); //parameter 1: x-positie, parameter 3: x-lengte (2 en 4 analoog vermoed ik)
         }
 
