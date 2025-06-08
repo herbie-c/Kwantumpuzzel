@@ -333,9 +333,10 @@
         const sqrtSR = Id.add(SR.multiply(I)).multiply(1/Math.sqrt(2));
 
         // Custom button creation function
-        function createCustomButton(label, x, y, kleur, opkleur, callback) {
+        // Custom button creation function
+        function createCustomButton(translationKey, x, y, kleur, opkleur, callback) {
             const button = document.createElement('button');
-            button.innerText = label;
+            button.innerText = getText(translationKey);
             button.style.position = 'absolute';
             button.style.left = x + 'px';
             button.style.top = y + 'px';
@@ -354,6 +355,13 @@
             });
             button.addEventListener('click', callback);
             document.body.appendChild(button);
+            
+            // Store button reference with its translation key
+            buttons.push({
+                element: button,
+                key: translationKey
+            });
+            
             return button;
         }
 
@@ -446,43 +454,43 @@ let currentLanguage = 'en'; // Default language
             currentState = v0;
             
             // Create buttons
-            createCustomButton(getText("SU"), 1000, 150,'#4CAF50','#45a049',  () => {
+            createCustomButton('SU', 1000, 150,'#4CAF50','#45a049',  () => {
                 currentState = SU.apply(currentState);
             });
             
-            createCustomButton(getText('SD'), 1000, 200,'#4CAF50', '#45a049', () => {
+            createCustomButton('SD', 1000, 200,'#4CAF50', '#45a049', () => {
                 currentState = SD.apply(currentState);
             });
             
-            createCustomButton(getText('SL'), 1000, 250,'#4CAF50','#45a049', () => {
+            createCustomButton('SL', 1000, 250,'#4CAF50','#45a049', () => {
                 currentState = SL.apply(currentState);
             });
             
-            createCustomButton(getText('SR'), 1000, 300,'#4CAF50','#45a049', () => {
+            createCustomButton('SR', 1000, 300,'#4CAF50','#45a049', () => {
                 currentState = SR.apply(currentState);
             });
             
-            createCustomButton(getText('sqrtSU'), 1000, 400,'#D31A12','#cc0b0b', () => {
+            createCustomButton('sqrtSU', 1000, 400,'#D31A12','#cc0b0b', () => {
                 currentState = sqrtSU.apply(currentState);
             });
             
-            createCustomButton(getText('sqrtSD'), 1000, 450,'#D31A12','#cc0b0b', () => {
+            createCustomButton('sqrtSD', 1000, 450,'#D31A12','#cc0b0b', () => {
                 currentState = sqrtSD.apply(currentState);
             });
             
-            createCustomButton(getText('sqrtSL'), 1000, 500,'#D31A12','#cc0b0b', () => {
+            createCustomButton('sqrtSL', 1000, 500,'#D31A12','#cc0b0b', () => {
                 currentState = sqrtSL.apply(currentState);
             });
             
-            createCustomButton(getText('sqrtSR'), 1000, 550,'#D31A12','#cc0b0b', () => {
+            createCustomButton('sqrtSR', 1000, 550,'#D31A12','#cc0b0b', () => {
                 currentState = sqrtSR.apply(currentState);
             });
             
-            createCustomButton(getText('reset'), 1190, 600,'#2980b9','#2271B2', () => {
+            createCustomButton('reset', 1190, 600,'#2980b9','#2271B2', () => {
                 currentState = v0;
             });
             
-            createCustomButton(getText('switchrepr'), 1000, 600,'#2980b9','#2271B2', () => {
+            createCustomButton('switchrepr', 1000, 600,'#2980b9','#2271B2', () => {
                 represType = represType === 'math' ? 'prob' : 'math';
             });
         }
