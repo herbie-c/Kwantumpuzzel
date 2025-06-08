@@ -368,6 +368,7 @@
         // the languages
         const translations = {
     nl: {
+        title: 'Kwantum puzzel simulator',
         explanation: "Dit is een simulator voor de 2x2-kwantumschuifpuzzel. De 4 bovenste (groene) knoppen wisselen twee aangrenzende tegels." +
             " \n\nDe 4 (rode) knoppen daaronder zijn de kwantumwissels." +
             " Hierbij is er 50% kans dat de wissel doorgevoerd wordt en 50% kans dat dit niet gebeurt.\n\nDe knop 'Switch representatie' wisselt" +
@@ -386,10 +387,10 @@
         switchrepr: 'Switch representatie',
         currentrepr: "Huidige representatie: ",
         verwijs: 'Naar: ',
-        huidig: 'Huidige toestand: ',
-        title = 'Kwantumpuzzelsimulator'
+        huidig: 'Huidige toestand: '
     },
     en: {
+        title: 'Quantum puzzle simulator',
         explanation: "This is a simulator for the 2x2 quantum sliding puzzle. The 4 top (green) buttons swap two adjacent tiles." +
             " \n\nThe 4 (red) buttons below are the quantum swaps." +
             " These are defined by Lordi et al. as the square root of a classical swap.\n\nThe 'Switch representation' button toggles" +
@@ -407,8 +408,7 @@
         switchrepr: 'Switch representation',
         currentrepr: 'Current representation: ',
         verwijs: 'After: ',
-        huidig: 'Current state: ',
-        title = 'Kwantumpuzzelsimulator
+        huidig: 'Current state: '
     }
 };
 
@@ -431,7 +431,9 @@ let currentLanguage = 'en'; // Default language
             currentLanguage = langCode;
             updateButtonTexts();
             
-            // Update source link text
+            // Update page title
+            document.title = getText('title');
+            
             // Update h1 title
             const h1Element = document.querySelector('h1');
             if (h1Element) {
@@ -524,8 +526,8 @@ let currentLanguage = 'en'; // Default language
         // Manually initialize p5.js
         new p5();
     </script>
-<div class="description", id = 'source-text'>
-            <p>After: <a href="https://arxiv.org/pdf/2410.22287">Lordi N, Trank-Greene M, Kyle A, Combes J. Quantum permutation puzzles with indistinguishable particles. arXiv preprint arXiv:2410.22287. 2024 Oct 29</a>.</p>
-        </div>
+    <div class="description" id="source-text">
+        <p>After: <a href="https://arxiv.org/pdf/2410.22287">Lordi N, Trank-Greene M, Kyle A, Combes J. Quantum permutation puzzles with indistinguishable particles. arXiv preprint arXiv:2410.22287. 2024 Oct 29</a>.</p>
+    </div>
 </body>
 </html>
